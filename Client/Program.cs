@@ -9,39 +9,41 @@ handler.InitialHttp2StreamWindowSize *= 16;
 
 var client = new HttpClient(handler);
 
-foreach (var version in new[] { HttpVersion.Version11, HttpVersion.Version20 })
-{
-    for (var bodySize = 1024; bodySize <= 1024 * 1024 * 16; bodySize *= 2)
+foreach (var proxyVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
+    foreach (var backendVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
     {
-        var body = new byte[bodySize];
-        Random.Shared.NextBytes(body);
-
-        for (int retry = 1; retry <= 5; retry++)
+        for (var bodySize = 1024; bodySize <= 1024 * 1024 * 8; bodySize *= 2)
         {
-            const string Proxy = "https://20.223.132.213";
-            //const string Proxy = "https://localhost:5001";
+            var body = new byte[bodySize];
+            Random.Shared.NextBytes(body);
 
-            var request = new HttpRequestMessage
+            for (int retry = 1; retry <= 2; retry++)
             {
-                Method = HttpMethod.Post,
-                Content = new ByteArrayContent(body),
-                Version = version,
-                VersionPolicy = HttpVersionPolicy.RequestVersionExact,
-                RequestUri = new Uri(Proxy)
-            };
+                const string Proxy = "https://20.223.132.213";
+                //const string Proxy = "https://localhost:5001";
 
-            request.Headers.Add("X-Backend-Http-Version", version.ToString());
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    Content = new ByteArrayContent(body),
+                    Version = proxyVersion,
+                    VersionPolicy = HttpVersionPolicy.RequestVersionExact,
+                    RequestUri = new Uri(Proxy)
+                };
 
-            var start = Stopwatch.StartNew();
+                request.Headers.Add("X-Backend-Http-Version", backendVersion.ToString());
 
-            using var response = await client.SendAsync(request);
+                var start = Stopwatch.StartNew();
 
-            string responseString = await response.Content.ReadAsStringAsync();
+                using var response = await client.SendAsync(request);
 
-            Console.WriteLine($"{retry} - Sent {bodySize / 1024} kB in {start.ElapsedMilliseconds:N2} ms (HTTP {version})");
-            //Console.WriteLine(responseString);
+                string responseString = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"{retry} - Sent {bodySize / 1024} kB in {start.ElapsedMilliseconds:N2} ms (HTTP {proxyVersion}-{backendVersion})");
+                //Console.WriteLine(responseString);
+            }
+
+            Console.WriteLine();
         }
-
-        Console.WriteLine();
     }
 }
