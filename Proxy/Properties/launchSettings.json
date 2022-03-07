@@ -3,7 +3,7 @@
     "Proxy": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:5001",
+      "applicationUrl": "https://*:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
