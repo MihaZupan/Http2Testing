@@ -19,15 +19,13 @@ var handler = new SocketsHttpHandler()
 };
 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
-handler.InitialHttp2StreamWindowSize = 16 * 1024 * 1024;
-
 var httpClient = new HttpMessageInvoker(handler);
 
 app.Map("/", async (HttpContext context, IHttpForwarder forwarder) =>
 {
     if (!context.Request.Headers.TryGetValue("X-Backend-Http-Version", out var version) || !Version.TryParse(version, out var httpVersion))
     {
-        await context.Response.WriteAsync("Specify X-Http-Version");
+        await context.Response.WriteAsync("Specify X-Backend-Http-Version");
         return;
     }
 
@@ -38,15 +36,15 @@ app.Map("/", async (HttpContext context, IHttpForwarder forwarder) =>
     };
 
     const string Backend = "https://20.91.214.0";
-    //const string Backend = "https://localhost:5000";
 
     var error = await forwarder.SendAsync(context, Backend, httpClient, config);
 
     if (error != ForwarderError.None && !context.Response.HasStarted)
     {
         var errorFeature = context.GetForwarderErrorFeature();
-
-        await context.Response.WriteAsync($"{errorFeature?.Error}: {errorFeature?.Exception}");
+        var errorMessage = $"{errorFeature?.Error}: {errorFeature?.Exception}";
+        Console.WriteLine(errorMessage);
+        await context.Response.WriteAsync(errorMessage);
     }
 });
 

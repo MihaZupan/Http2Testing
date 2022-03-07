@@ -5,8 +5,6 @@ var handler = new SocketsHttpHandler();
 handler.UseCookies = false;
 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
-handler.InitialHttp2StreamWindowSize = 16 * 1024 * 1024;
-
 var client = new HttpClient(handler);
 
 foreach (var proxyVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
@@ -21,7 +19,6 @@ foreach (var proxyVersion in new[] { HttpVersion.Version11, HttpVersion.Version2
             for (int retry = 1; retry <= 2; retry++)
             {
                 const string Proxy = "https://20.223.132.213";
-                //const string Proxy = "https://localhost:5001";
 
                 var request = new HttpRequestMessage
                 {
