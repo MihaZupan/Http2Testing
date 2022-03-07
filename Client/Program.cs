@@ -5,7 +5,7 @@ var handler = new SocketsHttpHandler();
 handler.UseCookies = false;
 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
-handler.InitialHttp2StreamWindowSize *= 16;
+handler.InitialHttp2StreamWindowSize *= 1024;
 
 var client = new HttpClient(handler);
 
@@ -13,7 +13,7 @@ foreach (var proxyVersion in new[] { HttpVersion.Version11, HttpVersion.Version2
 {
     foreach (var backendVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
     {
-        for (var bodySize = 1024; bodySize <= 1024 * 1024 * 8; bodySize *= 2)
+        for (var bodySize = 1024 * 128; bodySize <= 1024 * 1024 * 8; bodySize *= 2)
         {
             var body = new byte[bodySize];
             Random.Shared.NextBytes(body);
