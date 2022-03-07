@@ -5,7 +5,7 @@ var handler = new SocketsHttpHandler();
 handler.UseCookies = false;
 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
-handler.InitialHttp2StreamWindowSize *= 1024;
+handler.InitialHttp2StreamWindowSize = 16 * 1024 * 1024;
 
 var client = new HttpClient(handler);
 

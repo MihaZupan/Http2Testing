@@ -17,7 +17,7 @@ var handler = new SocketsHttpHandler()
 };
 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
-handler.InitialHttp2StreamWindowSize *= 1024;
+handler.InitialHttp2StreamWindowSize = 16 * 1024 * 1024;
 
 var httpClient = new HttpMessageInvoker(handler);
 
