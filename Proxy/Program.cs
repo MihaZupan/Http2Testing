@@ -56,6 +56,9 @@ public sealed class TelemetryConsumer : IForwarderTelemetryConsumer
 {
     public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime)
     {
-        Console.WriteLine($"OnContentTransferred: {contentLength / 1024} kB in {iops} iops (read = {(int)readTime.TotalMilliseconds} ms, write = {(int)writeTime.TotalMilliseconds} ms)");
+        if (isRequest)
+        {
+            Console.WriteLine($"OnContentTransferred: {contentLength / 1024} kB in {iops} iops (read = {(int)readTime.TotalMilliseconds} ms, write = {(int)writeTime.TotalMilliseconds} ms)");
+        }
     }
 }
