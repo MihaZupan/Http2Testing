@@ -1,0 +1,45 @@
+﻿using System.Diagnostics;
+using System.Net;
+
+var handler = new SocketsHttpHandler();
+handler.UseCookies = false;
+handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
+
+var client = new HttpClient(handler);
+
+foreach (var version in new[] { HttpVersion.Version11, HttpVersion.Version20 })
+{
+    for (var bodySize = 1024; bodySize <= 1024 * 1024 * 16; bodySize *= 2)
+    {
+        var body = new byte[bodySize];
+        Random.Shared.NextBytes(body);
+
+        for (int retry = 1; retry <= 5; retry++)
+        {
+            const string Proxy = "https://20.224.0.64";
+            //const string Proxy = "https://localhost:5001";
+
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                Content = new ByteArrayContent(body),
+                Version = version,
+                VersionPolicy = HttpVersionPolicy.RequestVersionExact,
+                RequestUri = new Uri(Proxy)
+            };
+
+            request.Headers.Add("X-Backend-Http-Version", version.ToString());
+
+            var start = Stopwatch.StartNew();
+
+            using var response = await client.SendAsync(request);
+
+            string responseString = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine($"{retry} - Sent {bodySize / 1024} kB in {start.ElapsedMilliseconds:N2} ms (HTTP {version})");
+            //Console.WriteLine(responseString);
+        }
+
+        Console.WriteLine();
+    }
+}
