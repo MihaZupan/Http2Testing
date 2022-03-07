@@ -17,6 +17,8 @@ var handler = new SocketsHttpHandler()
 };
 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
+handler.InitialHttp2StreamWindowSize *= 16;
+
 var httpClient = new HttpMessageInvoker(handler);
 
 app.Map("/", async (HttpContext context, IHttpForwarder forwarder) =>
