@@ -5,6 +5,8 @@ var handler = new SocketsHttpHandler();
 handler.UseCookies = false;
 handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
+handler.InitialHttp2StreamWindowSize *= 16;
+
 var client = new HttpClient(handler);
 
 foreach (var version in new[] { HttpVersion.Version11, HttpVersion.Version20 })
