@@ -1,9 +1,11 @@
 using System.Net;
 using Yarp.ReverseProxy.Forwarder;
+using Yarp.Telemetry.Consumption;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddReverseProxy();
+builder.Services.AddTelemetryConsumer<TelemetryConsumer>();
 
 var app = builder.Build();
 
@@ -49,3 +51,11 @@ app.Map("/", async (HttpContext context, IHttpForwarder forwarder) =>
 });
 
 app.Run();
+
+public sealed class TelemetryConsumer : IForwarderTelemetryConsumer
+{
+    public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime)
+    {
+        Console.WriteLine($"OnContentTransferred: {contentLength / 1024} kB in {iops} iops (read = {(int)readTime.TotalMilliseconds} ms, write = {(int)writeTime.TotalMilliseconds} ms)");
+    }
+}
