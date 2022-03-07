@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Limits.Http2.InitialStreamWindowSize *= 8;
+    options.Limits.Http2.InitialStreamWindowSize = 16 * 1024 * 1024;
     options.Limits.Http2.InitialConnectionWindowSize = 16 * 1024 * 1024;
 });
 
