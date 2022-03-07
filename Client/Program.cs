@@ -10,6 +10,7 @@ handler.InitialHttp2StreamWindowSize *= 16;
 var client = new HttpClient(handler);
 
 foreach (var proxyVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
+{
     foreach (var backendVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
     {
         for (var bodySize = 1024; bodySize <= 1024 * 1024 * 8; bodySize *= 2)
