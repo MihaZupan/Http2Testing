@@ -16,7 +16,7 @@ foreach (var version in new[] { HttpVersion.Version11, HttpVersion.Version20 })
 
         for (int retry = 1; retry <= 5; retry++)
         {
-            const string Proxy = "https://20.224.0.64";
+            const string Proxy = "https://20.223.132.213";
             //const string Proxy = "https://localhost:5001";
 
             var request = new HttpRequestMessage
