@@ -9,9 +9,9 @@ foreach (var proxyVersion in new[] { HttpVersion.Version20 })
     foreach (var backendVersion in new[] { HttpVersion.Version11 })
     //foreach (var backendVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
     {
-        for (var bodySize = 1024 * 1024; bodySize <= 1024 * 1024 * 32; bodySize *= 2)
+        for (var bodySize = 1024 * 1024 * 4; bodySize <= 1024 * 1024 * 8; bodySize *= 2)
         {
-            var timingKey = $"{proxyVersion}-{backendVersion} {bodySize / 1024} kB";
+            var timingKey = $"{proxyVersion}-{backendVersion} {bodySize / 1024,5} kB";
             Console.WriteLine(timingKey);
 
             var body = new byte[bodySize];
@@ -20,7 +20,7 @@ foreach (var proxyVersion in new[] { HttpVersion.Version20 })
             var timings = new List<TimeSpan>();
             allTimings.Add(timingKey, timings);
 
-            for (int retry = 1; retry <= 50; retry++)
+            for (int retry = 1; retry <= 100; retry++)
             {
                 using var handler = new SocketsHttpHandler();
                 handler.UseCookies = false;
@@ -64,9 +64,7 @@ foreach (var (key, timings) in allTimings)
 {
     timings.Sort();
 
-    var p50 = (int)timings[(int)(timings.Count * 0.50)].TotalMilliseconds;
-    var p70 = (int)timings[(int)(timings.Count * 0.70)].TotalMilliseconds;
-    var p90 = (int)timings[(int)(timings.Count * 0.90)].TotalMilliseconds;
+    var percentiles = new[] { 50, 75, 90, 95 };
 
-    Console.WriteLine($"{key,20}: P50={p50,3} P70={p70,3} P90={p90,3}");
+    Console.WriteLine($"{key}: {string.Join(' ', percentiles.Select(p => $"P{p}={(int)timings[(int)(timings.Count * (p / 100.0))].TotalMilliseconds,-5}"))}");
 }
