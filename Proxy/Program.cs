@@ -59,17 +59,23 @@ app.Run();
 
 public sealed class RequestContentTelemetry : IForwarderTelemetryConsumer
 {
+    private readonly ILogger<RequestContentTelemetry> _logger;
+
+    public RequestContentTelemetry(ILogger<RequestContentTelemetry> logger)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
     public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime)
     {
         if (isRequest)
         {
-            var kb = contentLength / 1024;
-            var readMs = (int)readTime.TotalMilliseconds;
-            var writeMs = (int)writeTime.TotalMilliseconds;
-            var firstReadMs = (int)firstReadTime.TotalMilliseconds;
-
-            var message = $"{timestamp:HH:mm:ss.fff}: {kb} kB in {iops} iops (firstRead = {firstReadMs} ms, read = {readMs} ms, write = {writeMs} ms)";
-            Console.WriteLine(message);
+            _logRequestContentTransferred(_logger, contentLength, iops, readTime, writeTime, firstReadTime, null);
         }
     }
+
+    private static readonly Action<ILogger, long, long, TimeSpan, TimeSpan, TimeSpan, Exception?> _logRequestContentTransferred = LoggerMessage.Define<long, long, TimeSpan, TimeSpan, TimeSpan>(
+        LogLevel.Information,
+        new EventId(1, "RequestContentTransferred"),
+        "Transferred {contentLength} request bytes in {iops} iops (readTime = {readTime}, writeTime = {writeMs}, firstReadTime = {firstReadTime})");
 }
