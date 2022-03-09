@@ -70,12 +70,12 @@ public sealed class RequestContentTelemetry : IForwarderTelemetryConsumer
     {
         if (isRequest)
         {
-            _logRequestContentTransferred(_logger, contentLength, iops, readTime, writeTime, firstReadTime, null);
+            _logRequestContentTransferred(_logger, contentLength, iops, (float)readTime.TotalMilliseconds, (float)writeTime.TotalMilliseconds, (float)firstReadTime.TotalMilliseconds, null);
         }
     }
 
-    private static readonly Action<ILogger, long, long, TimeSpan, TimeSpan, TimeSpan, Exception?> _logRequestContentTransferred = LoggerMessage.Define<long, long, TimeSpan, TimeSpan, TimeSpan>(
+    private static readonly Action<ILogger, long, long, float, float, float, Exception?> _logRequestContentTransferred = LoggerMessage.Define<long, long, float, float, float>(
         LogLevel.Information,
         new EventId(1, "RequestContentTransferred"),
-        "Transferred {contentLength} request bytes in {iops} iops (readTime = {readTime}, writeTime = {writeMs}, firstReadTime = {firstReadTime})");
+        "Transferred {contentLength} request bytes in {iops} iops (readTime = {readMs:N2} ms, writeTime = {writeMs:N2} ms, firstReadTime = {firstReadMs:N2} ms)");
 }
