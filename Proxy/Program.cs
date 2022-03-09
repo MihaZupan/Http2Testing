@@ -12,7 +12,7 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 builder.Services.AddReverseProxy();
-builder.Services.AddTelemetryConsumer<TelemetryConsumer>();
+builder.Services.AddTelemetryConsumer<RequestContentTelemetry>();
 
 var app = builder.Build();
 
@@ -57,13 +57,19 @@ app.Map("/", async (HttpContext context, IHttpForwarder forwarder) =>
 
 app.Run();
 
-public sealed class TelemetryConsumer : IForwarderTelemetryConsumer
+public sealed class RequestContentTelemetry : IForwarderTelemetryConsumer
 {
     public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime)
     {
         if (isRequest)
         {
-            Console.WriteLine($"OnContentTransferred: {contentLength / 1024} kB in {iops} iops (read = {(int)readTime.TotalMilliseconds} ms, write = {(int)writeTime.TotalMilliseconds} ms)");
+            var kb = contentLength / 1024;
+            var readMs = (int)readTime.TotalMilliseconds;
+            var writeMs = (int)writeTime.TotalMilliseconds;
+            var firstReadMs = (int)firstReadTime.TotalMilliseconds;
+
+            var message = $"{timestamp:HH:mm:ss.fff}: {kb} kB in {iops} iops (firstRead = {firstReadMs} ms, read = {readMs} ms, write = {writeMs} ms)";
+            Console.WriteLine(message);
         }
     }
 }
