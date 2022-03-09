@@ -3,9 +3,11 @@ using System.Net;
 
 var allTimings = new Dictionary<string, List<TimeSpan>>();
 
-foreach (var proxyVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
+foreach (var proxyVersion in new[] { HttpVersion.Version20 })
+//foreach (var proxyVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
 {
-    foreach (var backendVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
+    foreach (var backendVersion in new[] { HttpVersion.Version11 })
+    //foreach (var backendVersion in new[] { HttpVersion.Version11, HttpVersion.Version20 })
     {
         for (var bodySize = 1024 * 1024; bodySize <= 1024 * 1024 * 32; bodySize *= 2)
         {
