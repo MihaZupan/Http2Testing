@@ -1,9 +1,9 @@
 ﻿{
   "profiles": {
-    "Backend": {
+    "SimpleProxy": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "applicationUrl": "https://*:5000"
+      "applicationUrl": "https://*:5001"
     }
   }
 }
